@@ -1,7 +1,6 @@
+# 💼 DevProfile Generator (Backend)
 
-# 💼 DevProfile Optimizer (Backend)
-
-> A FastAPI-based backend that helps developers optimize their profiles (GitHub, Resume) using intelligent data fetching and analysis.
+> A FastAPI-based backend that helps developers generate optimized profiles (GitHub, Resume) using intelligent data fetching and analysis.
 
 ---
 
@@ -42,8 +41,8 @@ devprofile-project/
 
 ### 1. 🔧 Clone the Repo
 ```bash
-git clone https://github.com/yourusername/devprofile-optimizer.git
-cd devprofile-optimizer/backend
+git clone https://github.com/yourusername/devprofile-project.git
+cd devprofile-project/backend
 ```
 
 ### 2. 📦 Create Virtual Environment
@@ -107,7 +106,7 @@ Go to 👉 [http://localhost:8000/docs](http://localhost:8000/docs) to use Swagg
 
 ---
 
-## 🧑‍💻 Made with ❤️ by Sukesh
+## 🧑‍💻 Made by Sukesh
 
 - FastAPI + SQLite + SQLAlchemy + bcrypt
 - GPT & Qdrant integrations coming soon!
