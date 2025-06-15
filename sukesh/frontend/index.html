@@ -1,0 +1,60 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevProfile Generator</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>DevProfile Generator</h1>
+    <form id="githubForm">
+      <div class="form-row">
+        <label for="githubInput">GitHub Username:</label>
+        <input
+          type="text"
+          id="githubInput"
+          placeholder="Enter GitHub username"
+        />
+      </div>
+
+      <div class="form-row">
+        <label for="tokenInput">GitHub Token:</label>
+        <input
+          type="password"
+          id="tokenInput"
+          placeholder="Enter GitHub token"
+        />
+      </div>
+
+      <div class="form-row center-button">
+        <button type="submit">Fetch Profile</button>
+      </div>
+    </form>
+
+    <div class="profile-container" id="profile">
+      <div class="profile-header">
+        <a id="githubLink" href="#" target="_blank">
+          <img id="avatar" src="" alt="Profile Picture" />
+        </a>
+
+        <div class="profile-info">
+          <h1 id="name">Loading...</h1>
+          <p id="bio">Please wait while we fetch your bio.</p>
+        </div>
+      </div>
+
+      <div class="stats">
+        <span id="repos-count">📂 Public Repos: ...</span>
+        <span id="followers">👥 Followers: ...</span>
+        <span id="following">👣 Following: ...</span>
+      </div>
+
+      <h2>🗂 My Repositories</h2>
+      <ul class="repo-list" id="repo-list"></ul>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
