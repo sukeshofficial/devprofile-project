@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 💼 DevProfile Generator (Backend)
 
 > A FastAPI-based backend that helps developers generate optimized profiles (GitHub, Resume) using intelligent data fetching and analysis.
