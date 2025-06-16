@@ -9,3 +9,4 @@ def get_github_profile(username: str = Query(...), token: str = Query(...)):
         return fetch_github_profile(username, token)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"GitHub fetch error: {e}")
+
