@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Offer Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .skill-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: #EFF6FF;
+            color: #1E40AF;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0.25rem;
+        }
+        .resource-card {
+            transition: all 0.2s ease-in-out;
+        }
+        .resource-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+            <div class="p-6 md:p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">Job Offer Analyzer</h1>
+                    <p class="mt-2 text-gray-600">Upload a job offer to analyze required skills and discover learning resources</p>
+                </div>
+
+                <!-- Upload Section -->
+                <div id="uploadSection" class="max-w-2xl mx-auto">
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
+                        <div class="flex justify-center mb-4">
+                            <div class="p-3 bg-blue-100 rounded-full">
+                                <i class="fas fa-file-upload text-2xl text-blue-600"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-1">Drag and drop your job offer file</h3>
+                        <p class="text-sm text-gray-500 mb-4">Or click to browse files (PDF, DOCX, DOC, TXT)</p>
+                        
+                        <form id="uploadForm" class="space-y-4">
+                            <div class="relative">
+                                <input type="file" 
+                                       id="jobOffer" 
+                                       name="file" 
+                                       accept=".pdf,.docx,.doc,.txt" 
+                                       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                       required>
+                                <label for="jobOffer" class="block w-full px-4 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 cursor-pointer transition-colors">
+                                    Select File
+                                </label>
+                            </div>
+                            <p id="fileInfo" class="text-sm text-gray-500 mt-2"></p>
+                            
+                            <!-- YouTube API Key Input -->
+                            <div class="space-y-2">
+                                <label for="youtubeKey" class="block text-sm font-medium text-gray-700">YouTube API Key (Optional)</label>
+                                <div class="mt-1 relative rounded-md shadow-sm">
+                                    <input type="password" id="youtubeKey" name="youtubeKey" class="focus:ring-blue-500 focus:border-blue-500 block w-full pr-10 sm:text-sm border-gray-300 rounded-md" placeholder="Enter your YouTube API key">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500">Provide a YouTube API key to get video recommendations (optional). <a href="https://developers.google.com/youtube/v3/getting-started" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline">Get API Key</a></p>
+                            </div>
+                            
+                            <button type="submit" 
+                                    class="w-full flex justify-center items-center px-4 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white hidden" id="submitSpinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span id="submitText">Analyze Job Offer</span>
+                            </button>
+                        </form>
+                    </div>
+
+                <!-- Loading State -->
+                <div id="loading" class="hidden p-12 text-center">
+                    <div class="inline-flex items-center justify-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                    <p class="mt-4 text-gray-600 font-medium">Analyzing job offer...</p>
+                    <p class="text-sm text-gray-500 mt-2">This may take a moment as we process your document.</p>
+                </div>
+
+                <!-- Results Section -->
+                <div id="results" class="hidden">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Analysis Results</h2>
+                            <p class="text-gray-500">Here's what we found in your job offer</p>
+                        </div>
+                        <button onclick="startOver()" class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <i class="fas fa-redo mr-2"></i>
+                            Analyze Another
+                        </button>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                    <i class="fas fa-tools text-lg"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">Skills Detected</p>
+                                    <p id="totalSkills" class="text-2xl font-semibold text-gray-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                    <i class="fas fa-book-open text-lg"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">Resources Found</p>
+                                    <p id="resourceCount" class="text-2xl font-semibold text-gray-900">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Extracted Text -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-medium text-gray-900">Extracted Text</h3>
+                            <button type="button" onclick="copyToClipboard('extractedText')" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                                <i class="far fa-copy mr-1"></i> Copy
+                            </button>
+                        </div>
+                        <div id="extractedText" class="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
+                            No text extracted or file could not be read.
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Skills Section -->
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Detected Skills</h3>
+                                ${data.user_skills ? '<span class="text-sm text-gray-500">' + data.skill_comparison.matched_skills.length + ' of ' + data.user_skills.length + ' skills matched</span>' : ''}
+                            </div>
+                            <div id="skillsList" class="flex flex-wrap -m-1">
+                                ${data.skill_comparison ? `
+                                    ${data.skill_comparison.matched_skills.map(skill => `
+                                        <span class="skill-badge bg-green-100 text-green-800">
+                                            ${skill}
+                                            <svg class="w-4 h-4 ml-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                        </span>
+                                    `).join('')}
+                                    ${data.skill_comparison.missing_skills.map(skill => `
+                                        <span class="skill-badge bg-gray-100 text-gray-500 line-through">
+                                            ${skill}
+                                        </span>
+                                    `).join('')}
+                                ` : ''}
+                                <span class="text-gray-500 italic">No skills detected.</span>
+                            </div>
+                        </div>
+
+                        <!-- Learning Resources Section -->
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Learning Resources</h3>
+                                <span class="text-xs text-gray-500">Click to open in new tab</span>
+                            </div>
+                            <div id="learningResources" class="space-y-4">
+                                <div class="text-center py-8">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900">No learning resources found</h3>
+                                    <p class="mt-1 text-sm text-gray-500">Upload a job offer to see relevant learning resources.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Job Match Modal -->
+    <div id="jobMatchModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">🎯 Job Match Found!</h3>
+                    <button onclick="closeJobMatchModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-gray-700 dark:text-gray-300 mb-2">Your profile matches <span id="matchPercentage" class="font-bold text-blue-600 dark:text-blue-400">0%</span> with this job position.</p>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                            <div id="matchBar" class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <p id="matchDescription" class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            <span id="matchingSkillsCount">0</span> out of <span id="totalSkillsCount">0</span> required skills matched
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div id="matchingSkillsSection" class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                            <h4 class="font-medium text-green-800 dark:text-green-200 mb-2">✅ Your Matching Skills</h4>
+                            <div id="matchingSkills" class="flex flex-wrap gap-2">
+                                <!-- Filled by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div id="missingSkillsSection" class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                            <h4 class="font-medium text-yellow-800 dark:text-yellow-200 mb-2">📚 Skills to Learn</h4>
+                            <div id="missingSkills" class="flex flex-wrap gap-2">
+                                <!-- Filled by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                            <h4 class="font-medium text-blue-800 dark:text-blue-200 mb-2">📅 Learning Plan</h4>
+                            <div id="learningPlanPreview" class="text-sm text-gray-700 dark:text-gray-300">
+                                Based on your skills gap, we can create a personalized learning plan.
+                            </div>
+                            <button onclick="showLearningSchedule()" class="mt-3 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-800/50 dark:hover:bg-blue-700/50 dark:text-blue-200 rounded-md text-sm font-medium transition-colors">
+                                View Learning Schedule
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-2">
+                        <button onclick="closeJobMatchModal()" class="px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                            Maybe Later
+                        </button>
+                        <button id="applyNowBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                            <span>Apply Now</span>
+                            <i class="fas fa-external-link-alt ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learning Schedule Modal -->
+    <div id="learningScheduleModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">📅 Learning Schedule</h3>
+                    <button onclick="closeLearningScheduleModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-300">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                        <h4 class="font-medium text-gray-900 dark:text-white mb-3">Learning Preferences</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="hoursPerDay" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Hours per day</label>
+                                <input type="number" id="hoursPerDay" min="1" max="12" value="2" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            </div>
+                            <div>
+                                <label for="daysPerWeek" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Days per week</label>
+                                <input type="number" id="daysPerWeek" min="1" max="7" value="5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            </div>
+                        </div>
+                        <button onclick="generateLearningSchedule()" class="mt-4 w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
+                            Generate Schedule
+                        </button>
+                    </div>
+                    
+                    <div id="scheduleLoading" class="hidden text-center py-8">
+                        <div class="inline-flex items-center justify-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                        </div>
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">Generating your learning schedule...</p>
+                    </div>
+                    
+                    <div id="scheduleContainer" class="space-y-4">
+                        <!-- Filled by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if we have user skills from the profile page
+        const userSkills = JSON.parse(sessionStorage.getItem('userSkills') || '[]');
+        if (userSkills.length > 0) {
+            // Show a message that we have skills to compare
+            const uploadSection = document.getElementById('uploadSection');
+            if (uploadSection) {
+                const comparisonInfo = document.createElement('div');
+                comparisonInfo.className = 'bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded';
+                comparisonInfo.innerHTML = `
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h2a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                We'll compare the job requirements with your skills: 
+                                <span class="font-medium">${userSkills.join(', ')}</span>
+                            </p>
+                        </div>
+                    </div>
+                `;
+                uploadSection.insertBefore(comparisonInfo, uploadSection.firstChild);
+            }
+        }
+        // File input change handler
+        const fileInput = document.getElementById('jobOffer');
+        const fileInfo = document.getElementById('fileInfo');
+        
+        fileInput.addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                fileInfo.textContent = `Selected file: ${this.files[0].name} (${(this.files[0].size / 1024 / 1024).toFixed(2)} MB)`;
+            } else {
+                fileInfo.textContent = '';
+            }
+        });
+        
+        // Drag and drop functionality
+        const dropZone = document.querySelector('.border-dashed');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropZone.classList.add('border-blue-500', 'bg-blue-50');
+            dropZone.classList.remove('border-gray-300');
+        }
+        
+        function unhighlight() {
+            dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+            dropZone.classList.add('border-gray-300');
+        }
+        
+        dropZone.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length) {
+                fileInput.files = files;
+                fileInfo.textContent = `Selected file: ${files[0].name} (${(files[0].size / 1024 / 1024).toFixed(2)} MB)`;
+            }
+        }
+        
+        // Form submission
+        const form = document.getElementById('uploadForm');
+        form.addEventListener('submit', handleFormSubmit);
+        
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('jobOffer');
+            const submitButton = form.querySelector('button[type="submit"]');
+            const submitText = submitButton.querySelector('#submitText');
+            const submitSpinner = submitButton.querySelector('#submitSpinner');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showError('Please select a file to upload');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            // Add YouTube API key if provided
+            const youtubeKey = document.getElementById('youtubeKey').value.trim();
+            if (youtubeKey) {
+                formData.append('youtube_api_key', youtubeKey);
+            }
+            
+            // Show loading state
+            submitButton.disabled = true;
+            submitText.textContent = 'Analyzing...';
+            submitSpinner.classList.remove('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            
+            // Close any open modals
+            closeJobMatchModal();
+            closeLearningScheduleModal();
+            
+            try {
+                const response = await fetch('/api/analyze-job-offer', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to analyze job offer');
+                }
+                
+                const data = await response.json();
+                
+                // Store job skills for later use
+                if (data.skills && data.skills.length > 0) {
+                    window.currentJobSkills = data.skills;
+                    
+                    // Get user skills from session storage
+                    const userSkills = JSON.parse(sessionStorage.getItem('userSkills') || '[]');
+                    if (userSkills.length > 0) {
+                        window.currentUserSkills = userSkills;
+                    }
+                }
+                
+                // Display results and show job match if applicable
+                await displayResults(data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message || 'An error occurred while analyzing the job offer');
+            } finally {
+                // Reset loading state
+                submitButton.disabled = false;
+                submitText.textContent = 'Analyze Job Offer';
+                submitSpinner.classList.add('hidden');
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+        
+        // Copy to clipboard
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent || element.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = element.textContent;
+                element.textContent = 'Copied!';
+                element.classList.add('text-green-600');
+                
+                setTimeout(() => {
+                    element.textContent = originalText;
+                    element.classList.remove('text-green-600');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+        
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'bg-red-50 border-l-4 border-red-400 p-4 mb-4';
+            errorDiv.innerHTML = `
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">${message}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Insert at the top of the results
+            const resultsDiv = document.getElementById('results');
+            if (resultsDiv.firstChild) {
+                resultsDiv.insertBefore(errorDiv, resultsDiv.firstChild);
+            } else {
+                resultsDiv.appendChild(errorDiv);
+            }
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+        
+        // Display the analysis results
+        async function displayResults(data) {
+            // Add user skills to the data if available
+            const userSkills = JSON.parse(sessionStorage.getItem('userSkills') || '[]');
+            const jobSkills = data.skills || [];
+            
+            if (userSkills.length > 0) {
+                data.user_skills = userSkills;
+                
+                // Add skill comparison to the results
+                data.skill_comparison = {
+                    matched_skills: [],
+                    missing_skills: []
+                };
+                
+                const jobSkillsLower = jobSkills.map(skill => skill.toLowerCase());
+                
+                userSkills.forEach(skill => {
+                    const skillLower = skill.toLowerCase();
+                    if (jobSkillsLower.includes(skillLower)) {
+                        data.skill_comparison.matched_skills.push(skill);
+                    } else {
+                        data.skill_comparison.missing_skills.push(skill);
+                    }
+                });
+                
+                // Show job match modal if we have job skills
+                if (jobSkills.length > 0) {
+                    // Store the skills for later use
+                    window.currentJobSkills = jobSkills;
+                    window.currentUserSkills = userSkills;
+                    
+                    // Show the job match modal
+                    showJobMatch(jobSkills, userSkills);
+                }
+            } else if (jobSkills.length > 0) {
+                // If no user skills but we have job skills, show a prompt to connect profiles
+                const matchSection = document.createElement('div');
+                matchSection.className = 'mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg';
+                matchSection.innerHTML = `
+                    <p class="text-blue-800 dark:text-blue-200">
+                        Connect your GitHub profile to see how well you match with this job!
+                    </p>
+                    <div class="mt-3">
+                        <a href="/auth/github" class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 inline-flex items-center">
+                            <i class="fab fa-github mr-2"></i> Connect GitHub
+                        </a>
+                    </div>
+                `;
+                document.getElementById('results').appendChild(matchSection);
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.classList.remove('hidden');
+        
+        // Update stats
+        document.getElementById('totalSkills').textContent = data.metadata?.total_skills || 0;
+        document.getElementById('resourceCount').textContent = data.metadata?.resource_count || 0;
+        
+        // Display extracted text
+        const extractedTextDiv = document.getElementById('extractedText');
+        if (data.extracted_text) {
+            extractedTextDiv.textContent = data.extracted_text;
+        } else {
+            extractedTextDiv.innerHTML = '<p class="text-gray-500 italic">No text could be extracted from the document.</p>';
+        }
+        
+        // Display skills
+        const skillsDiv = document.getElementById('skillsList');
+        skillsDiv.innerHTML = '';
+        
+        if (data.skills && data.skills.length > 0) {
+            data.skills.forEach(skill => {
+                const skillBadge = document.createElement('span');
+                skillBadge.className = 'skill-badge';
+                skillBadge.textContent = skill;
+                skillsDiv.appendChild(skillBadge);
+            });
+        } else {
+            skillsDiv.innerHTML = '<span class="text-gray-500 italic">No skills detected in the document.</span>';
+        }
+        
+        // Display learning resources
+        const resourcesDiv = document.getElementById('learningResources');
+        resourcesDiv.innerHTML = '';
+        
+        if (data.learning_resources && data.learning_resources.length > 0) {
+            const resourcesList = document.createElement('div');
+            resourcesList.className = 'space-y-4';
+            
+            data.learning_resources.forEach(item => {
+                if (!item.resources || item.resources.length === 0) return;
+                
+                const resourceSection = document.createElement('div');
+                resourceSection.className = 'mb-6';
+                
+                const sectionTitle = document.createElement('h4');
+                sectionTitle.className = 'text-sm font-medium text-gray-500 uppercase tracking-wider mb-3';
+                sectionTitle.textContent = `${item.skill} Resources`;
+                
+                const resourcesGrid = document.createElement('div');
+                resourcesGrid.className = 'grid grid-cols-1 gap-4';
+                
+                item.resources.forEach(resource => {
+                    const resourceCard = document.createElement('a');
+                    resourceCard.href = resource.url;
+                    resourceCard.target = '_blank';
+                    resourceCard.rel = 'noopener noreferrer';
+                    resourceCard.className = 'resource-card block bg-white border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors';
+                    
+                    let iconClass = 'text-blue-500';
+                    let icon = '';
+                    
+                    switch(resource.type) {
+                        case 'documentation':
+                            icon = '<i class="fas fa-book"></i>';
+                            break;
+                        case 'tutorial':
+                            icon = '<i class="fas fa-graduation-cap"></i>';
+                            break;
+                        case 'course':
+                            icon = '<i class="fas fa-video"></i>';
+                            break;
+                        default:
+                            icon = '<i class="fas fa-external-link-alt"></i>';
+                    }
+                    
+                    resourceCard.innerHTML = `
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg ${iconClass} bg-blue-50">
+                                ${icon}
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-sm font-medium text-gray-900 group-hover:text-blue-600">${resource.title}</h4>
+                                ${resource.description ? `<p class="mt-1 text-xs text-gray-500">${resource.description}</p>` : ''}
+                                ${resource.source ? `<p class="mt-1 text-xs text-gray-400">${resource.source}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    resourcesGrid.appendChild(resourceCard);
+                });
+                
+                resourceSection.appendChild(sectionTitle);
+                resourceSection.appendChild(resourcesGrid);
+                resourcesList.appendChild(resourceSection);
+            });
+            
+            resourcesDiv.appendChild(resourcesList);
+        } else {
+            resourcesDiv.innerHTML = `
+                <div class="text-center py-8">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No learning resources found</h3>
+                    <p class="mt-1 text-sm text-gray-500">We couldn't find any relevant learning resources for the detected skills.</p>
+                </div>`;
+        }
+    }
+    
+        // Format view count (e.g., 1234 -> 1.2K)
+        function formatViewCount(count) {
+            if (!count) return '';
+            if (count >= 1000000) {
+                return (count / 1000000).toFixed(1) + 'M';
+            } else if (count >= 1000) {
+                return (count / 1000).toFixed(1) + 'K';
+            }
+            return count.toString();
+        }
+        
+        // Start over
+        // Job match and learning schedule functionality
+        let currentJobSkills = [];
+        let currentUserSkills = [];
+        let currentMissingSkills = [];
+
+        // Show job match modal with the given match data
+        function showJobMatch(jobSkills, userSkills) {
+            currentJobSkills = jobSkills;
+            currentUserSkills = userSkills;
+            
+            // Calculate matching and missing skills
+            const jobSkillsSet = new Set(jobSkills.map(s => s.toLowerCase()));
+            const userSkillsSet = new Set(userSkills.map(s => s.toLowerCase()));
+            
+            const matchingSkills = [];
+            const missingSkills = [];
+            
+            jobSkills.forEach(skill => {
+                if (userSkillsSet.has(skill.toLowerCase())) {
+                    matchingSkills.push(skill);
+                } else {
+                    missingSkills.push(skill);
+                }
+            });
+            
+            currentMissingSkills = missingSkills;
+            
+            // Update UI
+            const matchPercentage = Math.round((matchingSkills.length / jobSkills.length) * 100);
+            document.getElementById('matchPercentage').textContent = `${matchPercentage}%`;
+            document.getElementById('matchBar').style.width = `${matchPercentage}%`;
+            document.getElementById('matchingSkillsCount').textContent = matchingSkills.length;
+            document.getElementById('totalSkillsCount').textContent = jobSkills.length;
+            
+            // Update matching skills
+            const matchingSkillsEl = document.getElementById('matchingSkills');
+            matchingSkillsEl.innerHTML = matchingSkills.length > 0 
+                ? matchingSkills.map(skill => `
+                    <span class="px-2.5 py-1 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200 rounded-full">
+                        ${skill}
+                    </span>`).join('')
+                : '<p class="text-sm text-gray-500 dark:text-gray-400">No matching skills found.</p>';
+            
+            // Update missing skills
+            const missingSkillsEl = document.getElementById('missingSkills');
+            missingSkillsEl.innerHTML = missingSkills.length > 0
+                ? missingSkills.map(skill => `
+                    <span class="px-2.5 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200 rounded-full">
+                        ${skill}
+                    </span>`).join('')
+                : '<p class="text-sm text-gray-500 dark:text-gray-400">No skills to learn. Great job!</p>';
+            
+            // Show/hide sections based on content
+            document.getElementById('matchingSkillsSection').classList.toggle('hidden', matchingSkills.length === 0);
+            document.getElementById('missingSkillsSection').classList.toggle('hidden', missingSkills.length === 0);
+            
+            // Show modal
+            document.getElementById('jobMatchModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Update apply button
+            const applyBtn = document.getElementById('applyNowBtn');
+            if (matchPercentage >= 70) {
+                applyBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                applyBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                applyBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Apply Now';
+            } else {
+                applyBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                applyBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                applyBtn.innerHTML = 'Apply Now <i class="fas fa-external-link-alt ml-2"></i>';
+            }
+            
+            // Scroll to top of modal
+            document.querySelector('#jobMatchModal').scrollTo(0, 0);
+        }
+        
+        // Close job match modal
+        function closeJobMatchModal() {
+            document.getElementById('jobMatchModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Show learning schedule modal
+        function showLearningSchedule() {
+            closeJobMatchModal();
+            document.getElementById('learningScheduleModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            generateLearningSchedule();
+        }
+        
+        // Close learning schedule modal
+        function closeLearningScheduleModal() {
+            document.getElementById('learningScheduleModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Generate learning schedule based on user preferences
+        async function generateLearningSchedule() {
+            const hoursPerDay = parseInt(document.getElementById('hoursPerDay').value) || 2;
+            const daysPerWeek = parseInt(document.getElementById('daysPerWeek').value) || 5;
+            const hoursPerWeek = hoursPerDay * daysPerWeek;
+            
+            if (currentMissingSkills.length === 0) {
+                document.getElementById('scheduleContainer').innerHTML = `
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                        <p class="text-yellow-700 dark:text-yellow-300">No skills to learn. Your profile is already a great match!</p>
+                    </div>`;
+                return;
+            }
+            
+            // Show loading state
+            document.getElementById('scheduleLoading').classList.remove('hidden');
+            document.getElementById('scheduleContainer').innerHTML = '';
+            
+            try {
+                // Call backend to generate schedule
+                const response = await fetch('/learning-schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        skills: currentMissingSkills,
+                        hours_per_week: hoursPerWeek
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to generate learning schedule');
+                }
+                
+                const schedule = await response.json();
+                
+                // Render schedule
+                const scheduleContainer = document.getElementById('scheduleContainer');
+                scheduleContainer.innerHTML = `
+                    <div class="mb-4">
+                        <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Your Learning Plan</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Based on your availability of <span class="font-medium">${hoursPerWeek} hours per week</span>,
+                            you can complete this learning path in <span class="font-medium">${schedule.length} weeks</span>.
+                        </p>
+                    </div>
+                    <div class="space-y-4">
+                        ${schedule.map(week => `
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                                    <h5 class="font-medium text-gray-900 dark:text-white">Week ${week.week}: ${week.focus_area}</h5>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        ${week.hours_per_week} hours • ${week.skills.length} skills
+                                    </p>
+                                </div>
+                                <div class="p-4">
+                                    <div class="flex flex-wrap gap-2 mb-3">
+                                        ${week.skills.map(skill => `
+                                            <span class="px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200 rounded-full">
+                                                ${skill}
+                                            </span>
+                                        `).join('')}
+                                    </div>
+                                    <button onclick="startLearningWeek(${week.week - 1})" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                                        Start Learning <i class="fas fa-arrow-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error generating learning schedule:', error);
+                document.getElementById('scheduleContainer').innerHTML = `
+                    <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                        <p class="text-red-700 dark:text-red-300">Failed to generate learning schedule. Please try again later.</p>
+                    </div>`;
+            } finally {
+                document.getElementById('scheduleLoading').classList.add('hidden');
+            }
+        }
+        
+        // Start learning a specific week
+        function startLearningWeek(weekIndex) {
+            // In a real app, this would navigate to the learning resources for this week
+            alert(`Starting learning for week ${weekIndex + 1}`);
+        }
+        
+        // Initialize event listeners for modals
+        document.addEventListener('click', function(event) {
+            // Close modals when clicking outside
+            const jobMatchModal = document.getElementById('jobMatchModal');
+            if (event.target === jobMatchModal) {
+                closeJobMatchModal();
+            }
+            
+            const learningScheduleModal = document.getElementById('learningScheduleModal');
+            if (event.target === learningScheduleModal) {
+                closeLearningScheduleModal();
+            }
+        });
+        
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeJobMatchModal();
+                closeLearningScheduleModal();
+            }
+        });
+        
+        // Start over
+        function startOver() {
+            document.getElementById('uploadForm').reset();
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('fileInfo').textContent = '';
+            document.getElementById('youtubeKey').value = '';
+        }
+    });
+</script>
+</body>
+</html>

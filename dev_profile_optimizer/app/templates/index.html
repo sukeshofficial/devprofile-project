@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Profile Optimizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#111827',
+                            800: '#1F2937',
+                            700: '#374151',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Ripple effect */
+        .ripple-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .ripple {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(59, 130, 246, 0.7);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        .github-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .github-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .skill-tag {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .skill-tag:hover {
+            background: rgba(59, 130, 246, 0.8);
+            transform: scale(1.05);
+        }
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        /* Chatbot Styles */
+        #chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(calc(100% - 60px));
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        #chatbot-container.open {
+            transform: translateY(0);
+        }
+
+        .chatbot-header {
+            background: #4f46e5;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #f9fafb;
+        }
+
+        .chatbot-input {
+            padding: 12px 16px;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .bot-message {
+            background: #e0e7ff;
+            color: #1e40af;
+            border-bottom-left-radius: 4px;
+            margin-right: auto;
+        }
+
+        .user-message {
+            background: #4f46e5;
+            color: white;
+            border-bottom-right-radius: 4px;
+            margin-left: auto;
+        }
+
+        .dark #chatbot-container {
+            background: #1f2937;
+            border: 1px solid #374151;
+        }
+
+        .dark .chatbot-messages {
+            background: #111827;
+        }
+        .dark .chatbot-input {
+            background: #1f2937;
+            border-top: 1px solid #374151;
+        }
+        .dark .bot-message {
+            background: #1e3a8a;
+            color: #bfdbfe;
+        }
+        .dark .user-message {
+            background: #4f46e5;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 dark:text-white min-h-screen h-full transition-colors duration-200">
+    <!-- Add dark mode class to HTML element if needed -->
+    <script>
+        // Initialize theme before page renders to prevent flash of light theme
+        (function() {
+            const savedTheme = localStorage.getItem('color-theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-end mb-4">
+            <button id="theme-toggle" type="button" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none" aria-label="Toggle dark mode">
+                <svg id="theme-toggle-dark-icon" class="w-6 h-6 text-gray-800 dark:text-gray-200 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                </svg>
+                <svg id="theme-toggle-light-icon" class="w-6 h-6 text-yellow-500 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </div>
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 dark:from-blue-400 dark:to-purple-400">
+                Dev Profile Optimizer
+            </h1>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Enhance your developer profile by analyzing job requirements and comparing them with your skills
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <!-- Job Analyzer Card -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl">
+                <div class="p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="p-3 bg-blue-100 rounded-lg mr-4">
+                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">Job Offer Analyzer</h2>
+                    </div>
+                    <p class="text-gray-600 mb-6">Upload a job offer to analyze required skills and get personalized learning resources to bridge any gaps.</p>
+                    <a href="/job-analyzer/" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200 w-full sm:w-auto">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Analyze Job Offer
+                    </a>
+                </div>
+            </div>
+
+
+
+            <!-- GitHub Profile Analyzer -->
+            <div class="github-card">
+                <div class="p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="p-3 bg-black bg-opacity-20 rounded-lg mr-4">
+                            <i class="fab fa-github text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">GitHub Profile Analyzer</h2>
+                    </div>
+                    <p class="text-gray-300 mb-6">Analyze your GitHub profile to identify your technical skills and get personalized learning recommendations.</p>
+                    
+                    <form id="github-analyzer-form" onsubmit="event.preventDefault(); analyzeGitHubProfile();">
+                        <div class="mb-4">
+                            <label for="github-username" class="block text-sm font-medium text-gray-300 mb-2">GitHub Username</label>
+                            <div class="flex">
+                                <input type="text" id="github-username" class="flex-1 min-w-0 block w-full px-3 py-2 rounded-l-md border-0 text-base text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm" placeholder="Enter your GitHub username" required>
+                                <button type="submit" id="analyze-github-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-r-md text-white bg-black bg-opacity-30 hover:bg-opacity-40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Analyze
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                    
+                    <div id="github-loading" class="hidden text-center py-8">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
+                        <p class="mt-4 text-gray-300">Analyzing GitHub profile...</p>
+                    </div>
+                    
+                    <div id="github-results" class="hidden">
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold text-white mb-3">Your GitHub Profile Summary</h3>
+                            <div class="bg-gray-800 bg-opacity-50 rounded-lg p-4 mb-6">
+                                <div class="flex items-center mb-4">
+                                    <img id="github-avatar" src="" alt="GitHub Avatar" class="w-16 h-16 rounded-full mr-4 border-2 border-white">
+                                    <div>
+                                        <h4 id="github-name" class="text-xl font-bold text-white"></h4>
+                                        <p id="github-username-display" class="text-blue-300"></p>
+                                        <p id="github-bio" class="text-gray-300 mt-1"></p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 mt-4">
+                                    <div class="bg-gray-900 bg-opacity-50 rounded-lg p-3 text-center">
+                                        <p class="text-2xl font-bold text-white" id="github-repos">0</p>
+                                        <p class="text-xs text-gray-400">Repositories</p>
+                                    </div>
+                                    <div class="bg-gray-900 bg-opacity-50 rounded-lg p-3 text-center">
+                                        <p class="text-2xl font-bold text-white" id="github-followers">0</p>
+                                        <p class="text-xs text-gray-400">Followers</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h3 class="text-lg font-semibold text-white mb-3">Your Skills</h3>
+                                <div class="flex flex-wrap gap-2 mt-3" id="skills-container">
+                                    <!-- Skills will be dynamically added here -->
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h3 class="text-lg font-semibold text-white mb-3">Learning Resources</h3>
+                                <div id="learning-resources" class="space-y-6">
+                                    <!-- Learning resources will be added here -->
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between mt-6">
+                                <a href="/job-analyzer/" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    <i class="fas fa-briefcase mr-2"></i>
+                                    Analyze Job Offers
+                                </a>
+                                <button id="reanalyze-github-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <i class="fas fa-sync-alt mr-2"></i>
+                                    Re-analyze Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YouTube Learning Resources -->
+            <div class="mt-16 max-w-6xl mx-auto">
+                <h2 class="text-2xl font-bold text-center text-gray-800 dark:text-white mb-8">Learning Resources</h2>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4">Search for Learning Resources</h3>
+                        <div class="space-y-4">
+                            <div class="flex gap-2">
+                                <input type="text" id="skill-search" placeholder="Enter a skill (e.g., Python, React, Docker)" 
+                                       class="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <button onclick="searchVideos()" 
+                                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                            <div class="flex flex-wrap gap-4 items-center">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Skill Level</label>
+                                    <div class="flex gap-2">
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="skill-level" value="beginner" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" checked>
+                                            <span class="ml-2 text-gray-700 dark:text-gray-300">Beginner</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="skill-level" value="intermediate" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                            <span class="ml-2 text-gray-700 dark:text-gray-300">Intermediate</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="skill-level" value="advanced" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                            <span class="ml-2 text-gray-700 dark:text-gray-300">Advanced</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <label for="language" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Language</label>
+                                    <select id="language" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white">
+                                        <option value="en">English</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="fr">French</option>
+                                        <option value="de">German</option>
+                                        <option value="hi">Hindi</option>
+                                        <option value="ja">Japanese</option>
+                                        <option value="ko">Korean</option>
+                                        <option value="pt">Portuguese</option>
+                                        <option value="ru">Russian</option>
+                                        <option value="zh">Chinese</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="youtube-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Videos will be loaded here -->
+                    </div>
+                    <div id="loading" class="hidden text-center py-8">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                        <p class="mt-2 text-gray-600 dark:text-gray-300">Loading resources...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- How It Works Section -->
+        <div class="mt-16 max-w-4xl mx-auto">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-8">How It Works</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-tie text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">1. Connect Your GitHub</h3>
+                    <p class="text-gray-600">Link your GitHub account to analyze your skills and experience.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-search text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">2. Analyze Job Requirements</h3>
+                    <p class="text-gray-600">Upload or paste a job description to see the required skills and qualifications.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lightbulb text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">3. Get Recommendations</h3>
+                    <p class="text-gray-600">Receive personalized learning resources to help you bridge any skill gaps.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="error-container" class="fixed top-4 right-4 z-50 max-w-md"></div>
+
+    <script>
+        // Ripple effect
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create ripple container if it doesn't exist
+            let rippleContainer = document.querySelector('.ripple-container');
+            if (!rippleContainer) {
+                rippleContainer = document.createElement('div');
+                rippleContainer.className = 'ripple-container';
+                document.body.appendChild(rippleContainer);
+            }
+            
+            document.addEventListener('click', function(e) {
+                // Don't create ripple on theme toggle button to avoid visual glitches
+                if (e.target.closest('#theme-toggle')) return;
+                
+                // Create ripple element
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                
+                // Position the ripple at the click position relative to the viewport
+                const x = e.clientX;
+                const y = e.clientY;
+                
+                // Set position
+                ripple.style.left = `${x - 10}px`;  // Center the ripple on the cursor
+                ripple.style.top = `${y - 10}px`;   // Center the ripple on the cursor
+                
+                // Add ripple to the container
+                rippleContainer.appendChild(ripple);
+                
+                // Remove ripple after animation completes
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // Theme toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+            const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+            const html = document.documentElement;
+
+            // Function to toggle between dark and light themes
+            function toggleTheme() {
+                // Toggle the dark class on the html element
+                html.classList.toggle('dark');
+                
+                // Update the icon visibility
+                const isDark = html.classList.contains('dark');
+                themeToggleDarkIcon.classList.toggle('hidden', isDark);
+                themeToggleLightIcon.classList.toggle('hidden', !isDark);
+                
+                // Save preference to localStorage
+                localStorage.setItem('color-theme', isDark ? 'dark' : 'light');
+            }
+
+            // Set initial state
+            const savedTheme = localStorage.getItem('color-theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // Apply saved theme or system preference
+            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+                html.classList.add('dark');
+                themeToggleLightIcon.classList.remove('hidden');
+                themeToggleDarkIcon.classList.add('hidden');
+            } else {
+                html.classList.remove('dark');
+                themeToggleDarkIcon.classList.remove('hidden');
+                themeToggleLightIcon.classList.add('hidden');
+            }
+
+            // Add click event listener to the theme toggle button
+            themeToggleBtn.addEventListener('click', toggleTheme);
+
+            // Listen for system theme changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                // Only apply system preference if user hasn't set a preference
+                if (!localStorage.getItem('color-theme')) {
+                    if (e.matches) {
+                        html.classList.add('dark');
+                        themeToggleLightIcon.classList.remove('hidden');
+                        themeToggleDarkIcon.classList.add('hidden');
+                    } else {
+                        html.classList.remove('dark');
+                        themeToggleDarkIcon.classList.remove('hidden');
+                        themeToggleLightIcon.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const analyzeBtn = document.getElementById('analyze-github-btn');
+            const reanalyzeBtn = document.getElementById('reanalyze-github-btn');
+            const githubUsernameInput = document.getElementById('github-username');
+            const githubForm = document.getElementById('github-analyzer-form');
+            const githubResults = document.getElementById('github-results');
+            const githubLoading = document.getElementById('github-loading');
+            const errorContainer = document.getElementById('error-container');
+
+            // Function to show error messages
+            function showError(message) {
+                if (!errorContainer) return;
+                
+                errorContainer.innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <strong class="font-bold">Error: </strong>
+                        <span class="block sm:inline">${message}</span>
+                        <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                            <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <title>Close</title>
+                                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                            </svg>
+                        </span>
+                    </div>
+                `;
+                
+                // Add click event to close button
+                const closeBtn = errorContainer.querySelector('svg');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function() {
+                        errorContainer.innerHTML = '';
+                    });
+                }
+                
+                // Scroll to the top to show the error
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            
+            // Function to analyze GitHub profile
+            async function analyzeGitHubProfile() {
+                console.log('analyzeGitHubProfile called');
+                const username = githubUsernameInput ? githubUsernameInput.value.trim() : '';
+                console.log('GitHub username:', username);
+                
+                if (!username) {
+                    console.error('No GitHub username provided');
+                    showError('Please enter a GitHub username');
+                    return;
+                }
+                
+                try {
+                    // Show loading state
+                    analyzeBtn.disabled = true;
+                    if (reanalyzeBtn) reanalyzeBtn.disabled = true;
+                    githubLoading.classList.remove('hidden');
+                    if (githubForm) githubForm.classList.add('hidden');
+                    
+                    // Hide any previous results
+                    if (githubResults) {
+                        githubResults.classList.add('hidden');
+                    }
+                    
+                    // Call your backend API to analyze GitHub profile
+                    const response = await fetch(`/extract-github-skills?username=${encodeURIComponent(username)}`);
+                    
+                    // Check if response is not OK before trying to parse as JSON
+                    if (!response.ok) {
+                        let errorData;
+                        try {
+                            errorData = await response.json();
+                        } catch (e) {
+                            // If we can't parse the error as JSON, use the status text
+                            throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                        }
+                        throw new Error(errorData.detail || `GitHub API error: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Display results
+                    displayGitHubResults(data);
+                    
+                    // Show results section
+                    if (githubResults) {
+                        githubResults.classList.remove('hidden');
+                    }
+                    
+                } catch (error) {
+                    console.error('GitHub analysis error:', error);
+                    let errorMessage = error.message || 'Failed to analyze GitHub profile';
+                    
+                    // Provide more user-friendly messages for common errors
+                    if (errorMessage.includes('rate limit')) {
+                        errorMessage = 'GitHub API rate limit exceeded. Please try again in a few minutes or sign in with GitHub for higher limits.';
+                    } else if (errorMessage.includes('404')) {
+                        errorMessage = 'GitHub user not found. Please check the username and try again.';
+                    } else if (errorMessage.includes('403')) {
+                        errorMessage = 'Access to GitHub API was denied. This might be due to rate limiting. Please try again later.';
+                    }
+                    
+                    showError(errorMessage);
+                    if (githubForm) githubForm.classList.remove('hidden');
+                } finally {
+                    // Hide loading state
+                    githubLoading.classList.add('hidden');
+                    analyzeBtn.disabled = false;
+                    if (reanalyzeBtn) reanalyzeBtn.disabled = false;
+                }
+            }
+
+            // Function to display GitHub profile results
+            function displayGitHubResults(data) {
+                try {
+                    // Update profile information
+                    if (data.profile) {
+                        const profile = data.profile;
+                        document.getElementById('github-avatar').src = profile.avatar_url || 'https://via.placeholder.com/150';
+                        document.getElementById('github-name').textContent = profile.name || profile.login;
+                        document.getElementById('github-username-display').textContent = `@${profile.login}`;
+                        document.getElementById('github-bio').textContent = profile.bio || 'No bio available';
+                        document.getElementById('github-repos').textContent = profile.public_repos || 0;
+                        document.getElementById('github-followers').textContent = profile.followers || 0;
+                    }
+
+                    // Update skills
+                    const skillsContainer = document.getElementById('skills-container');
+                    if (skillsContainer) {
+                        skillsContainer.innerHTML = '';
+                        if (data.skills && data.skills.length > 0) {
+                            data.skills.forEach(skill => {
+                                const skillElement = document.createElement('span');
+                                skillElement.className = 'skill-tag px-3 py-1 rounded-full text-sm font-medium text-white';
+                                skillElement.textContent = skill;
+                                skillsContainer.appendChild(skillElement);
+                            });
+                        } else {
+                            const noSkills = document.createElement('p');
+                            noSkills.className = 'text-gray-300';
+                            noSkills.textContent = 'No skills detected. Try contributing to more repositories!';
+                            skillsContainer.appendChild(noSkills);
+                        }
+                    }
+
+                    // Update learning resources
+                    const learningResources = document.getElementById('learning-resources');
+                    if (learningResources) {
+                        learningResources.innerHTML = '';
+                        if (data.learning_resources && data.learning_resources.length > 0) {
+                            data.learning_resources.forEach(resource => {
+                                const resourceElement = document.createElement('div');
+                                resourceElement.className = 'bg-gray-800 bg-opacity-50 rounded-lg p-4';
+                                resourceElement.innerHTML = `
+                                    <h4 class="font-semibold text-white mb-2">${escapeHtml(resource.title)}</h4>
+                                    <p class="text-gray-300 text-sm mb-3">${escapeHtml(resource.description || 'No description available')}</p>
+                                    <a href="${escapeHtml(resource.url)}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 text-sm">
+                                        View Resource <i class="fas fa-external-link-alt ml-1"></i>
+                                    </a>
+                                `;
+                                learningResources.appendChild(resourceElement);
+                            });
+                        } else {
+                            const noResources = document.createElement('p');
+                            noResources.className = 'text-gray-300 text-center py-4';
+                            noResources.textContent = 'No learning resources available at the moment.';
+                            learningResources.appendChild(noResources);
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('Error displaying GitHub results:', error);
+                    showError('Failed to display GitHub profile results');
+                }
+            }
+
+            // Helper function to escape HTML
+            function escapeHtml(unsafe) {
+                if (!unsafe) return '';
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // Remove the click event listener for analyzeBtn since we're using form onsubmit
+            // if (analyzeBtn) {
+            //     analyzeBtn.addEventListener('click', analyzeGitHubProfile);
+            // }
+            
+            if (reanalyzeBtn) {
+                reanalyzeBtn.addEventListener('click', analyzeGitHubProfile);
+            }
+            
+            // Manually initialize the form submission
+            const githubFormElement = document.getElementById('github-analyzer-form');
+            if (githubFormElement) {
+                githubFormElement.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    analyzeGitHubProfile();
+                });
+                console.log('GitHub form submission handler attached');
+            } else {
+                console.error('GitHub form not found!');
+            }
+        });
+    </script>
+    
+    <!-- Add error message container -->
+    <div id="error-message" class="hidden fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg"></div>
+    
+    <!-- Load scripts at the end of body -->
+    <script src="/static/js/chatbot.js"></script>
+    <script src="/static/js/jobAnalysis.js"></script>
+    <script src="/static/js/progress-tracker.js"></script>
+    <script src="/static/js/youtube.js" onerror="console.error('Failed to load YouTube script')"></script>
+    <script>
+        // Initialize chatbot when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatbot = new Chatbot();
+            
+            // Optional: Add event listener for theme changes to update chatbot theme
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    // The chatbot will automatically pick up the theme change
+                    // because it uses CSS variables and dark mode classes
+                });
+            }
+        });
+    </script>
+</body>
+</html>

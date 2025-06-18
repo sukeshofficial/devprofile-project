@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Profile Optimizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .skill-badge {
+            transition: all 0.2s ease;
+        }
+        .skill-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .progress-bar {
+            transition: width 1s ease-in-out;
+        }
+        
+        /* Chatbot Styles */
+        #chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 60px;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #chatbot-container.open {
+            height: 500px;
+        }
+        
+        .chatbot-header {
+            background: #2563eb;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .chatbot-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #f9fafb;
+        }
+        
+        .chatbot-input {
+            padding: 12px;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+        
+        .message {
+            margin-bottom: 12px;
+            max-width: 80%;
+        }
+        
+        .user-message {
+            margin-left: auto;
+            background: #2563eb;
+            color: white;
+            border-radius: 12px 12px 0 12px;
+            padding: 8px 12px;
+        }
+        
+        .bot-message {
+            margin-right: auto;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px 12px 12px 0;
+            padding: 8px 12px;
+        }
+        
+        /* Skill Level Badges */
+        .badge-beginner { background-color: #dbeafe; color: #1e40af; }
+        .badge-intermediate { background-color: #fef3c7; color: #92400e; }
+        .badge-advanced { background-color: #dcfce7; color: #166534; }
+        .badge-expert { background-color: #f3e8ff; color: #5b21b6; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-robot text-blue-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">DevProfileOptimizer</span>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+                    <a href="#how-it-works" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-question-circle mr-1"></i> How It Works
+                    </a>
+                    <a href="#contact" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-envelope mr-1"></i> Contact
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-robot text-blue-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">DevProfileOptimizer</span>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+                    <a href="#how-it-works" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-question-circle mr-1"></i> How It Works
+                    </a>
+                    <a href="#contact" class="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-envelope mr-1"></i> Contact
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Hero Section -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl font-bold text-gray-900 sm:text-5xl lg:text-6xl mb-6">
+                <span class="block">Land Your Dream</span>
+                <span class="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Tech Job</span>
+            </h1>
+            <p class="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
+                Automatically analyze your skills against job requirements and get personalized learning recommendations.
+            </p>
+        </div>
+
+        <!-- Main Form -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-8">
+                <div class="space-y-8">
+                    <!-- Profile Tabs -->
+                    <div class="mb-6">
+                        <nav class="flex space-x-2" aria-label="Tabs">
+                            <button id="githubTab" type="button" class="px-4 py-2 rounded-t-lg text-sm font-medium bg-blue-600 text-white focus:outline-none" onclick="showProfileTab('github')">
+                                <i class="fab fa-github mr-1"></i> GitHub Profile
+                            </button>
+                            <button id="linkedinTab" type="button" class="px-4 py-2 rounded-t-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-blue-100 focus:outline-none" onclick="showProfileTab('linkedin')">
+                                <i class="fab fa-linkedin mr-1 text-blue-600"></i> LinkedIn Profile
+                            </button>
+                        </nav>
+                    </div>
+                    <!-- Profile Inputs -->
+                    <div id="profileSection" class="space-y-6">
+                        <div id="githubProfileSection">
+                            <label for="githubUsername" class="block text-sm font-medium text-gray-700 mb-1">
+                                <i class="fab fa-github mr-1"></i> GitHub Username
+                            </label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-at text-gray-400"></i>
+                                </div>
+                                <input type="text" id="githubUsername" 
+                                    class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md py-3" 
+                                    placeholder="yourusername"
+                                    onkeydown="if(event.key === 'Enter') extractGithubSkills()">
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">We'll analyze your public repositories</p>
+                            <div id="githubResult" class="mt-1"></div>
+                            <button onclick="extractGithubSkills()" 
+                                class="mt-4 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fab fa-github mr-2"></i> Analyze GitHub
+                            </button>
+                        </div>
+                        <div id="linkedinProfileSection" style="display:none;">
+                            <label for="linkedinUsername" class="block text-sm font-medium text-gray-700 mb-1">
+                                <i class="fab fa-linkedin mr-1 text-blue-600"></i> LinkedIn Profile
+                            </label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-link text-gray-400"></i>
+                                </div>
+                                <input type="text" id="linkedinUsername" 
+                                    class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md py-3" 
+                                    placeholder="profile URL or username"
+                                    onkeydown="if(event.key === 'Enter') extractLinkedInSkills()">
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">We'll extract skills from your profile</p>
+                            <div id="linkedinResult" class="mt-1"></div>
+                            <button onclick="extractLinkedInSkills()" 
+                                class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fab fa-linkedin mr-2"></i> Analyze LinkedIn
+                            </button>
+                        </div>
+                    </div>
+                    <script>
+                        function showProfileTab(tab) {
+                            const githubTab = document.getElementById('githubTab');
+                            const linkedinTab = document.getElementById('linkedinTab');
+                            const githubSection = document.getElementById('githubProfileSection');
+                            const linkedinSection = document.getElementById('linkedinProfileSection');
+                            if (tab === 'github') {
+                                githubTab.classList.add('bg-blue-600', 'text-white');
+                                githubTab.classList.remove('bg-gray-200', 'text-gray-700');
+                                linkedinTab.classList.add('bg-gray-200', 'text-gray-700');
+                                linkedinTab.classList.remove('bg-blue-600', 'text-white');
+                                githubSection.style.display = '';
+                                linkedinSection.style.display = 'none';
+                            } else {
+                                linkedinTab.classList.add('bg-blue-600', 'text-white');
+                                linkedinTab.classList.remove('bg-gray-200', 'text-gray-700');
+                                githubTab.classList.add('bg-gray-200', 'text-gray-700');
+                                githubTab.classList.remove('bg-blue-600', 'text-white');
+                                githubSection.style.display = 'none';
+                                linkedinSection.style.display = '';
+                            }
+                        }
+                    </script>
+                        <h2 class="text-2xl font-bold text-gray-900">1. Your Profile</h2>
+                        <p class="text-gray-600">Connect your profiles to analyze your skills</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- GitHub Input -->
+                            <div>
+                                <label for="githubUsername" class="block text-sm font-medium text-gray-700 mb-1">
+                                    <i class="fab fa-github mr-1"></i> GitHub Username
+                                </label>
+                                <div class="mt-1 relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-at text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="githubUsername" 
+                                           class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md py-3" 
+                                           placeholder="yourusername"
+                                           onkeydown="if(event.key === 'Enter') extractGithubSkills()">
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">We'll analyze your public repositories</p>
+                                <div id="githubResult" class="mt-1"></div>
+                            </div>
+                            
+                            <!-- LinkedIn Input -->
+                            <div>
+                                <label for="linkedinUsername" class="block text-sm font-medium text-gray-700 mb-1">
+                                    <i class="fab fa-linkedin mr-1 text-blue-600"></i> LinkedIn Profile
+                                </label>
+                                <div class="mt-1 relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-link text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="linkedinUsername" 
+                                           class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md py-3" 
+                                           placeholder="profile URL or username"
+                                           onkeydown="if(event.key === 'Enter') extractLinkedInSkills()">
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">We'll extract skills from your profile</p>
+                                <div id="linkedinResult" class="mt-1"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-3">
+                            <button onclick="extractGithubSkills()" 
+                                    class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fab fa-github mr-2"></i> Analyze GitHub
+                            </button>
+                            <button onclick="extractLinkedInSkills()" 
+                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fab fa-linkedin mr-2"></i> Analyze LinkedIn
+                            </button>
+                            
+                            <!-- LinkedIn Input -->
+                            <div>
+                                <label for="linkedinUsername" class="block text-sm font-medium text-gray-700 mb-1">
+                                    <i class="fab fa-linkedin mr-1 text-blue-600"></i> LinkedIn Username or URL
+                                </label>
+                                <div class="mt-1 relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-user text-gray-400"></i>
+                                    </div>
+                                    <input type="text" id="linkedinUsername" 
+                                           class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-12 sm:text-sm border-gray-300 rounded-md py-3" 
+                                           placeholder="username or profile URL"
+                                           onkeydown="if(event.key === 'Enter') analyzeProfile()">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button onclick="analyzeProfile()" 
+                                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <i class="fas fa-search mr-2"></i> Analyze My Profile
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Job Description Input (initially hidden) -->
+                    <div id="jobSection" class="hidden fade-in">
+                        <div class="border-t border-gray-200 pt-8">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-6">2. Job Description</h2>
+                            <p class="text-gray-600 mb-6">Paste the job description or upload a file to analyze required skills</p>
+                            
+                            <!-- Tabs -->
+                            <div class="border-b border-gray-200 mb-6">
+                                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                                    <button id="textTab" 
+                                            class="border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                        <i class="fas fa-align-left mr-2"></i>Paste Text
+                                    </button>
+                                    <button id="fileTab" 
+                                            class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                                        <i class="fas fa-upload mr-2"></i>Upload File
+                                    </button>
+                                </nav>
+                            </div>
+                            
+                            <!-- Text Input -->
+                            <div id="textInputSection" class="mt-4">
+                                <label for="jobDescription" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-file-alt mr-2 text-blue-500"></i>Paste Job Description
+                                </label>
+                                <div class="mt-1">
+                                    <textarea id="jobDescription" name="jobDescription" rows="6" 
+                                              class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md p-4" 
+                                              placeholder="Paste the job description here..."></textarea>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500">We'll analyze the text to extract key skills and requirements</p>
+                            </div>
+                            
+                            <!-- File Input (initially hidden) -->
+                            <div id="fileInputSection" class="mt-4 hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-file-upload mr-2 text-blue-500"></i>Upload Job Description
+                                </label>
+                                <div id="dropZone" class="mt-1 flex justify-center px-6 pt-10 pb-10 border-2 border-dashed border-gray-300 rounded-md hover:border-blue-400 transition-colors cursor-pointer">
+                                    <div class="space-y-1 text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <div class="flex text-sm text-gray-600 justify-center">
+                                            <label class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
+                                                <span>Choose a file</span>
+                                                <input id="jobFile" name="jobFile" type="file" class="sr-only" accept=".pdf,.docx,.txt,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                                            </label>
+                                            <p class="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">
+                                            PDF, DOCX, or TXT (max 10MB)
+                                        </p>
+                                    </div>
+                                </div>
+                                <p id="fileName" class="mt-2 text-sm text-center">
+                                    <span class="text-gray-500">No file selected</span>
+                                </p>
+                                <div id="fileError" class="mt-1 text-sm text-red-600"></div>
+                            </div>
+                            
+                            <div class="mt-6 flex justify-between items-center">
+                                <div id="jobAnalysisStatus" class="text-sm text-gray-500"></div>
+                                <button id="analyzeJobBtn" 
+                                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                    <i class="fas fa-search mr-2"></i> Analyze Job Description
+                                </button>
+                            </div>
+                            
+                            <!-- Results Section -->
+                            <div id="jobAnalysisResults" class="mt-8 hidden">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Analysis Results</h3>
+                                
+                                <!-- Extracted Skills -->
+                                <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+                                    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                            <i class="fas fa-tags mr-2 text-blue-500"></i>Key Skills Found
+                                        </h3>
+                                        <p class="mt-1 max-w-2xl text-sm text-gray-500">These are the main skills mentioned in the job description</p>
+                                    </div>
+                                    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                                        <div id="extractedSkills" class="flex flex-wrap gap-2">
+                                            <!-- Skills will be added here by JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- YouTube Video Recommendations -->
+                                <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                                    <div class="px-4 py-5 sm:px-6 bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between">
+                                        <div>
+                                            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                                <i class="fab fa-youtube mr-2 text-red-500"></i>Recommended Learning Resources
+                                            </h3>
+                                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Videos to help you prepare for this job</p>
+                                        </div>
+                                        <div class="mt-4 md:mt-0">
+                                            <label for="videoLanguage" class="block text-sm font-medium text-gray-700 mb-1">Preferred Language:</label>
+                                            <select id="videoLanguage" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                                                <option value="en" selected>English</option>
+                                                <option value="hi">Hindi</option>
+                                                <option value="es">Spanish (Español)</option>
+                                                <option value="fr">French (Français)</option>
+                                                <option value="de">German (Deutsch)</option>
+                                                <option value="zh">Chinese (中文)</option>
+                                                <option value="ja">Japanese (日本語)</option>
+                                                <option value="ru">Russian (Русский)</option>
+                                                <option value="ar">Arabic (العربية)</option>
+                                                <option value="pt">Portuguese (Português)</option>
+                                                <option value="bn">Bengali (বাংলা)</option>
+                                                <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+                                                <option value="mr">Marathi (मराठी)</option>
+                                                <option value="te">Telugu (తెలుగు)</option>
+                                                <option value="ta">Tamil (தமிழ்)</option>
+                                                <option value="ur">Urdu (اردو)</option>
+                                                <option value="tr">Turkish (Türkçe)</option>
+                                                <option value="it">Italian (Italiano)</option>
+                                                <option value="ko">Korean (한국어)</option>
+                                                <option value="vi">Vietnamese (Tiếng Việt)</option>
+                                                <option value="fa">Persian (فارسی)</option>
+                                                <option value="gu">Gujarati (ગુજરાતી)</option>
+                                                <option value="pl">Polish (Polski)</option>
+                                                <option value="uk">Ukrainian (Українська)</option>
+                                                <option value="ro">Romanian (Română)</option>
+                                                <option value="nl">Dutch (Nederlands)</option>
+                                                <option value="id">Indonesian (Bahasa Indonesia)</option>
+                                                <option value="th">Thai (ไทย)</option>
+                                                <option value="ms">Malay (Bahasa Melayu)</option>
+                                                <option value="sw">Swahili (Kiswahili)</option>
+                                                <option value="he">Hebrew (עברית)</option>
+                                                <option value="el">Greek (Ελληνικά)</option>
+                                                <option value="hu">Hungarian (Magyar)</option>
+                                                <option value="cs">Czech (Čeština)</option>
+                                                <option value="sv">Swedish (Svenska)</option>
+                                                <option value="fi">Finnish (Suomi)</option>
+                                                <option value="no">Norwegian (Norsk)</option>
+                                                <option value="da">Danish (Dansk)</option>
+                                                <option value="sr">Serbian (Српски)</option>
+                                                <option value="sk">Slovak (Slovenčina)</option>
+                                                <option value="bg">Bulgarian (Български)</option>
+                                                <option value="hr">Croatian (Hrvatski)</option>
+                                                <option value="sl">Slovenian (Slovenščina)</option>
+                                                <option value="et">Estonian (Eesti)</option>
+                                                <option value="lv">Latvian (Latviešu)</option>
+                                                <option value="lt">Lithuanian (Lietuvių)</option>
+                                                <option value="fil">Filipino</option>
+                                                <option value="am">Amharic (አማርኛ)</option>
+                                                <option value="af">Afrikaans</option>
+                                                <option value="zu">Zulu (isiZulu)</option>
+                                                <option value="xh">Xhosa (isiXhosa)</option>
+                                                <option value="yo">Yoruba (Yorùbá)</option>
+                                                <option value="ig">Igbo (Asụsụ Igbo)</option>
+                                                <option value="ha">Hausa (Hausa)</option>
+                                                <option value="my">Burmese (မြန်မာဘာသာ)</option>
+                                                <option value="km">Khmer (ភាសាខ្មែរ)</option>
+                                                <option value="lo">Lao (ລາວ)</option>
+                                                <option value="si">Sinhala (සිංහල)</option>
+                                                <option value="ne">Nepali (नेपाली)</option>
+                                                <option value="ml">Malayalam (മലയാളം)</option>
+                                                <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                                                <option value="or">Odia (ଓଡ଼ିଆ)</option>
+                                                <option value="as">Assamese (অসমীয়া)</option>
+                                                <!-- Add/remove more as needed -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                                        <div id="youtubeVideos" class="space-y-4">
+                                            <!-- Videos will be loaded here by JavaScript -->
+                                            <div class="text-center py-8 text-gray-400">
+                                                <i class="fas fa-lightbulb text-3xl text-yellow-300 mb-2"></i>
+                                                <p>Analyze a job description to see recommended learning resources</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading State (initially hidden) -->
+                    <div id="loadingSection" class="hidden">
+                        <div class="text-center py-12">
+                            <div class="mx-auto h-12 w-12 text-blue-600 mb-4">
+                                <i class="fas fa-cog fa-spin text-4xl"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 mb-1">Analyzing your profile</h3>
+                            <p class="text-gray-500">This may take a moment...</p>
+                            <div class="mt-4 w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="analysisProgress" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Section (initially hidden) -->
+                    <div id="resultsSection" class="hidden fade-in">
+                        <div class="border-t border-gray-200 pt-8">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-6">Your Skill Analysis</h2>
+                            
+                            <!-- Match Score -->
+                            <div class="bg-white shadow rounded-lg p-6 mb-8">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-medium text-gray-900">Your Match Score</h3>
+                                    <span id="matchPercentage" class="text-3xl font-bold text-blue-600">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div id="matchProgress" class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full progress-bar" style="width: 0%"></div>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-500">This shows how well your skills match the job requirements.</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                                <!-- Your Skills -->
+                                <div class="bg-white shadow rounded-lg p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-lg font-medium text-gray-900">Your Skills</h3>
+                                        <span id="yourSkillsCount" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">0</span>
+                                    </div>
+                                    <div id="yourSkills" class="flex flex-wrap gap-2">
+    <div class="text-gray-400 text-sm italic">Your skills will appear here</div>
+</div>
+<!-- Visualization Canvas -->
+<div class="mt-6">
+    <canvas id="skillsChart" height="180"></canvas>
+</div>
+                                </div>
+                                
+                                <!-- Required Skills -->
+                                <div class="bg-white shadow rounded-lg p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-lg font-medium text-gray-900">Required Skills</h3>
+                                        <span id="requiredSkillsCount" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">0</span>
+                                    </div>
+                                    <div id="jobSkills" class="flex flex-wrap gap-2">
+                                        <div class="text-gray-400 text-sm italic">Required skills will appear here</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Missing Skills -->
+                            <div class="bg-white shadow rounded-lg p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-medium text-gray-900">Skills to Learn</h3>
+                                    <span id="missingSkillsCount" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">0</span>
+                                </div>
+                                <div id="missingSkills" class="space-y-4">
+                                    <div class="text-center py-8 text-gray-400">
+                                        <i class="fas fa-lightbulb text-3xl text-yellow-300 mb-2"></i>
+                                        <p>Analyze a job description to see skill recommendations</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Recommendations -->
+                            <div id="recommendationsSection" class="mt-8 hidden">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Personalized Learning Path</h3>
+                                <div id="learningPath" class="space-y-4">
+                                    <!-- Learning resources will be inserted here -->
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 flex justify-end">
+                                <button onclick="startOver()" 
+                                        class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <i class="fas fa-redo mr-2"></i> Start Over
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- How It Works Section -->
+        <div id="how-it-works" class="mt-16 bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="px-8 py-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
+                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                        Get personalized skill analysis in just a few simple steps
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Step 1 -->
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 text-blue-600 text-2xl font-bold mb-4">
+                            1
+                        <p class="text-gray-300 text-sm">Helping developers bridge the gap between their skills and job requirements through intelligent analysis and personalized recommendations.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-white text-lg font-semibold mb-4">Quick Links</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-300 hover:text-white text-sm">Home</a></li>
+                            <li><a href="#how-it-works" class="text-gray-300 hover:text-white text-sm">How It Works</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white text-sm">About Us</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-white text-sm">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-white text-lg font-semibold mb-4">Connect With Us</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-300 hover:text-white">
+                                <i class="fab fa-github text-xl"></i>
+                            </a>
+                            <a href="#" class="text-gray-300 hover:text-white">
+                                <i class="fab fa-twitter text-xl"></i>
+                            </a>
+                            <a href="#" class="text-gray-300 hover:text-white">
+                                <i class="fab fa-linkedin text-xl"></i>
+                            </a>
+                        </div>
+                        <p class="mt-4 text-gray-300 text-sm">
+                            Have questions?<br>
+                            <a href="mailto:contact@devprofileoptimizer.com" class="text-blue-400 hover:text-blue-300">contact@devprofileoptimizer.com</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-8 pt-8 border-t border-gray-700">
+                    <p class="text-gray-400 text-sm text-center">&copy; 2023 DevProfileOptimizer. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Load scripts in the correct order -->
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/jobAnalysis.js"></script>
+    <script src="/static/js/progress-tracker.js"></script>
+    <script src="/static/js/chatbot.js"></script>
+    <script>
+        console.log('Initialization script running...');
+        
+        // Initialize chatbot when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM fully loaded, initializing components...');
+            
+            try {
+                console.log('Creating new Chatbot instance...');
+                window.chatbot = new Chatbot();
+                console.log('Chatbot instance created:', window.chatbot);
+                
+                // Initialize progress tracker
+                if (typeof ProgressTracker !== 'undefined') {
+                    console.log('Creating new ProgressTracker instance...');
+                    window.progressTracker = new ProgressTracker();
+                    console.log('ProgressTracker instance created:', window.progressTracker);
+                } else {
+                    console.warn('ProgressTracker is not defined');
+                }
+            } catch (error) {
+                console.error('Error during initialization:', error);
+            }
+        });
+        
+        // Log when all scripts are loaded
+        window.addEventListener('load', () => {
+            console.log('All resources finished loading');
+            console.log('Window.Chatbot:', window.Chatbot);
+            console.log('Window.chatbot:', window.chatbot);
+        });
+    </script>
+</body>
+</html>
