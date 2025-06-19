@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevProfile Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <!-- Component 1: GitHub Input Form -->
+    <div class="max-w-xl mx-auto my-8 p-6 bg-white rounded-xl shadow-md">
+        <h2 class="text-2xl font-bold mb-4 text-center text-gray-700">Fetch GitHub Profile</h2>
+        
+        <form id="github-form" class="space-y-4">
+          <div>
+            <label for="username" class="block text-sm font-medium text-gray-600">GitHub Username</label>
+            <input type="text" id="username" name="username" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+          </div>
+          
+          <div>
+            <label for="token" class="block text-sm font-medium text-gray-600">GitHub Token</label>
+            <input type="password" id="token" name="token" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required />
+          </div>
+          
+          <button id="fetch-btn" type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+            Fetch Profile
+          </button>
+        </form>
+    </div>
+
+    <!-- Profile Info -->
+    <div id="profile" class="hidden max-w-xl mx-auto bg-white rounded-xl shadow p-6 mb-6 text-center">
+      <img id="avatar" src="" class="w-24 h-24 mx-auto rounded-full mb-4" />
+      <h2 id="github-name" class="text-xl font-bold text-gray-800">Username</h2>
+      <p id="bio" class="text-sm text-gray-500">Bio will appear here...</p>
+    </div>
+
+
+
+    <!-- Repo List -->
+    <div id="repos-section" class="hidden max-w-xl mx-auto bg-white rounded-xl shadow p-6">
+        <h3 class="text-lg font-semibold text-primary mb-4">Select Repositories</h3>
+        <ul id="repo-list" class="space-y-2"></ul>
+
+        <button id="analyze-btn" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Generate Skills
+        </button>
+    </div>
+      
+    <script src="script.js"></script>
+</body>
+</html>
