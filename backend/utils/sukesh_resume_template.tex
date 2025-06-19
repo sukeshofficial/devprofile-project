@@ -10,12 +10,10 @@
 
 \geometry{margin=1in}
 \setlist[itemize]{noitemsep, topsep=0pt}
-
 \titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
 
 \begin{document}
 
-{% raw %}
 \begin{center}
     {\LARGE \textbf{ {{ name }} }} \\
     \vspace{0.2em}
@@ -36,49 +34,50 @@
 \textbf{Other:} & {{ tech.tools }} \\
 \end{tabularx}
 
+{% if achievements %}
 \vspace{1em}
 \section*{Achievements}
 \begin{itemize}
-{% endraw %}
-{% for ach in achievements %}
-    \item {{ ach }}
-{% endfor %}
-{% raw %}
+  {% for achievement in achievements %}
+    \item {{ achievement }}
+  {% endfor %}
 \end{itemize}
+{% endif %}
 
+{% if projects %}
+\vspace{1em}
 \section*{Projects}
-{% endraw %}
 {% for project in projects %}
-{% raw %}
-\subsection*{ {{ project.title }} \hfill \href{ {{ project.link }} }{GitHub Repo} }
+\texttt{ {{ project.title | escape_tex }} } \hfill \textit{ {{ project.link | escape_tex }} }
+{% if project.points %}
 \begin{itemize}
-{% endraw %}
-{% for point in project.points %}
+  {% for point in project.points %}
     \item {{ point }}
-{% endfor %}
-{% raw %}
+  {% endfor %}
 \end{itemize}
-{% endraw %}
+{% endif %}
+\vspace{0.5em}
 {% endfor %}
+{% endif %}
 
-{% raw %}
-\section*{Internships \& Experience}
-\begin{itemize}
-{% endraw %}
+{% if experience %}
+\vspace{1em}
+\section*{Experience}
 {% for exp in experience %}
-    \item \textbf{ {{ exp.company }} } \\ {{ exp.description }}
+\textbf{ {{ exp.company }} } \\
+{{ exp.description }} \\
+\vspace{0.5em}
 {% endfor %}
-{% raw %}
-\end{itemize}
+{% endif %}
 
+{% if education %}
+\vspace{1em}
 \section*{Education}
 \begin{tabularx}{\textwidth}{@{}l X r@{}}
-{% endraw %}
 {% for edu in education %}
 {{ edu.year }} & {{ edu.institution }} & {{ edu.score }} \\
 {% endfor %}
-{% raw %}
 \end{tabularx}
+{% endif %}
 
 \end{document}
-{% endraw %}

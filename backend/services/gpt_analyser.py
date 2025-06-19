@@ -26,7 +26,7 @@ def extract_skills_from_readme(readme_text: str) -> list:
     """
     
     payload = {
-        "model": "openai/gpt-3.5-turbo",  # or any other model you want
+        "model": "gpt-4o-mini",  # or any other model you want
         "messages": [
             {"role": "user", "content": prompt}
         ]
