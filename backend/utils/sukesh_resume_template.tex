@@ -1,0 +1,84 @@
+\documentclass{article}
+\usepackage{fontawesome}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{setspace}
+
+\geometry{margin=1in}
+\setlist[itemize]{noitemsep, topsep=0pt}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\titlerule]
+
+\begin{document}
+
+{% raw %}
+\begin{center}
+    {\LARGE \textbf{ {{ name }} }} \\
+    \vspace{0.2em}
+    \textcolor{gray}{ {{ role }} } \\
+    \vspace{0.5em}
+    \faEnvelope~\href{mailto:{{ email }}}{{ email }} ~|~
+    \faPhone~\href{tel:{{ phone }}}{{ phone }} ~|~
+    \faLinkedin~\href{ {{ linkedin }} }{ {{ linkedin }} } ~|~
+    \faGithub~\href{ {{ github }} }{ {{ github }} }
+\end{center}
+
+\vspace{1em}
+\section*{Technologies}
+\begin{tabularx}{\textwidth}{@{} l X @{}}
+\textbf{Languages:} & {{ tech.languages }} \\
+\textbf{AI \& Agents:} & {{ tech.ai }} \\
+\textbf{Technologies:} & {{ tech.frameworks }} \\
+\textbf{Other:} & {{ tech.tools }} \\
+\end{tabularx}
+
+\vspace{1em}
+\section*{Achievements}
+\begin{itemize}
+{% endraw %}
+{% for ach in achievements %}
+    \item {{ ach }}
+{% endfor %}
+{% raw %}
+\end{itemize}
+
+\section*{Projects}
+{% endraw %}
+{% for project in projects %}
+{% raw %}
+\subsection*{ {{ project.title }} \hfill \href{ {{ project.link }} }{GitHub Repo} }
+\begin{itemize}
+{% endraw %}
+{% for point in project.points %}
+    \item {{ point }}
+{% endfor %}
+{% raw %}
+\end{itemize}
+{% endraw %}
+{% endfor %}
+
+{% raw %}
+\section*{Internships \& Experience}
+\begin{itemize}
+{% endraw %}
+{% for exp in experience %}
+    \item \textbf{ {{ exp.company }} } \\ {{ exp.description }}
+{% endfor %}
+{% raw %}
+\end{itemize}
+
+\section*{Education}
+\begin{tabularx}{\textwidth}{@{}l X r@{}}
+{% endraw %}
+{% for edu in education %}
+{{ edu.year }} & {{ edu.institution }} & {{ edu.score }} \\
+{% endfor %}
+{% raw %}
+\end{tabularx}
+
+\end{document}
+{% endraw %}
