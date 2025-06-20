@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import github, analyze, resume
 from fastapi.staticfiles import StaticFiles
+
 app = FastAPI()
 
 app.add_middleware(

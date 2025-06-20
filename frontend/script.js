@@ -386,10 +386,11 @@ document.addEventListener("DOMContentLoaded", () => {
   createExperienceField();
 
   document.getElementById("add-experience-btn").addEventListener("click", createExperienceField);
-
+  
   document.getElementById("finish-resume-btn").addEventListener("click", async (e) => {
-    e.preventDefault(); // ✅ Prevent page reload
-
+    e.preventDefault(); // ✅ prevent any default submission
+    e.stopPropagation(); // ✅ stop event bubbling just in case
+  
     const experiences = [];
     document.querySelectorAll("#experience-fields > div").forEach(field => {
       const company = field.querySelector(".company").value.trim();
@@ -398,17 +399,16 @@ document.addEventListener("DOMContentLoaded", () => {
         experiences.push({ company, description });
       }
     });
-
+  
     if (experiences.length === 0) {
       alert("⚠️ Please enter at least one experience.");
       return;
     }
-
+  
     window.resumeData.experience = experiences;
 
-    // 🔄 Show spinner
     document.getElementById("loading-spinner").classList.remove("hidden");
-
+  
     try {
       const response = await fetch("http://localhost:8000/generate-resume", {
         method: "POST",
@@ -417,22 +417,25 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: JSON.stringify(window.resumeData)
       });
-
+  
       const result = await response.json();
-
-      // ✅ Hide spinner
+  
       document.getElementById("loading-spinner").classList.add("hidden");
-
+  
       if (result.pdf_url) {
-        window.generatedResumeUrl = result.pdf_url; // ✅ Store resume URL
-        const downloadBtn = document.getElementById("download-resume-btn");
-        downloadBtn.href = result.pdf_url;
+        window.generatedResumeUrl = result.pdf_url;
+  
+        // ✅ Show download button + preview
         document.getElementById("resume-download-link").classList.remove("hidden");
-        document.getElementById("resume-preview").src = result.pdf_url; // show preview
+        document.getElementById("resume-preview-container").classList.remove("hidden");
+  
+        const previewFrame = document.getElementById("resume-preview");
+        previewFrame.src = result.pdf_url;
+        previewFrame.classList.remove("hidden");
       } else {
         alert("❌ No PDF URL received.");
       }
-
+  
     } catch (err) {
       console.error("❌ Resume generation error:", err);
       alert("Something went wrong while generating resume.");
@@ -441,20 +444,38 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ✅ Control the actual download behavior
-  document.getElementById("download-resume-btn").addEventListener("click", (e) => {
-    if (window.generatedResumeUrl) {
-      const link = document.createElement("a");
-      link.href = window.generatedResumeUrl;
-      link.download = "resume.pdf";
-      link.target = "_blank";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
+  document.getElementById("download-resume-btn").addEventListener("click", async (e) => {
+    e.preventDefault?.();  // Safe check since it's a <div>
+    e.stopPropagation?.();
+  
+    if (!window.generatedResumeUrl) {
       alert("PDF not ready yet!");
-      e.preventDefault();
+      return;
+    }
+  
+    try {
+      const response = await fetch(window.generatedResumeUrl);
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch PDF.");
+      }
+  
+      // const blob = await response.blob();
+      // const blobUrl = window.URL.createObjectURL(blob);
+  
+      // const tempLink = document.createElement("a");
+      // tempLink.href = blobUrl;
+      // tempLink.download = "resume.pdf";
+      // document.body.appendChild(tempLink);
+      // tempLink.click();
+      // document.body.removeChild(tempLink);
+      // window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Download failed", err);
+      alert("Something went wrong while downloading.");
     }
   });
+ 
 });
 
 

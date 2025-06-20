@@ -117,18 +117,20 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
           </svg>
         </div>
+      </div>
 
-        <div id="resume-download-link" class="mt-6 text-center hidden">
-          <a id="download-resume-btn"
-             href="#"
-             class="inline-block px-5 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition">
-            📄 Download Your Resume
-          </a>
-        </div>
-              
+      <!-- Resume Preview and Download Section (moved outside experience-section) -->
+      <div class="mt-8">
         <div class="mt-6 text-center hidden" id="resume-preview-container">
           <h3 class="text-lg font-semibold text-gray-800 mb-2">📄 Resume Preview</h3>
-          <iframe id="resume-preview" class="w-full h-[600px] border rounded shadow hidden" frameborder="0"></iframe>
+          <iframe id="resume-preview" class="w-full h-[600px] border rounded shadow" frameborder="0"></iframe>
+        </div>
+        
+        <div id="resume-download-link" class="hidden">
+          <button id="download-resume-btn"
+            class="inline-block px-5 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition">
+            📄 Download Your Resume
+          </button>
         </div>
         
       </div>
